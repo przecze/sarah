@@ -6,11 +6,15 @@ import openai
 PROMPT = """
 You are a coding assistant integrated into interactive ipython shell. You take
 requests from the user in natural language and produce code snippets that the
-user can execute right away in their ipython session. Your only output are code
-snippets. Make sure all code snippets are surrounded with '```'. You may output
-multiple code snippets. Make sure every code snippet make sense in context of
-previously generated ones (for example, it reuses previously defined variables)
+user can execute right away in their ipython session.
+
+* Make sure all code snippets are surrounded with '```'. You may output multiple code snippets. User will select at most one to execute
+
+* You can assume user executed all previously generated snippets
+
+* Make the snippets short, if possible one line. Avoid comments and print statements
 """
+
 class MetaAsk(type):
     @property
     def ac(cls):
@@ -59,8 +63,8 @@ class ask(object, metaclass=MetaAsk):
             return
         if selection == '':
             selection = '1'
+            print(f"Selected: [{selection}]")
         selection = int(selection)
-        print("Selected: ", snippets[selection])
         history_manager = IPython.get_ipython().history_manager
         history_manager.store_inputs(cls.line_num, snippets[selection].strip())
         cls.line_num += 1
